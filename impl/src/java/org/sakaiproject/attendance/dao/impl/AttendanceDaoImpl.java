@@ -26,10 +26,11 @@ import org.hibernate.type.StringType;
 import org.sakaiproject.attendance.dao.AttendanceDao;
 import org.sakaiproject.attendance.model.*;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.HibernateCallback;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 
 		HibernateCallback hcb = new HibernateCallback() {
 			@Override
-			public Object doInHibernate(Session session) throws HibernateException {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery(QUERY_GET_SITE_BY_SITE_ID);
 				q.setParameter(SITE_ID, siteID, new StringType());
 				return q.uniqueResult();
@@ -266,14 +267,14 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try {
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ACTIVE_ATTENDANCE_STATUSES_FOR_SITE);
 					q.setParameter(ATTENDANCE_SITE, attendanceSite, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
 					return q.list();
 				}
 			};
 
-			return (List<AttendanceStatus>) getHibernateTemplate().execute(hcb);
+			return (List<AttendanceStatus>) getHibernateTemplate().executeFind(hcb);
 		} catch (DataAccessException e) {
 			log.error("getActiveStatusesForSite failed", e);
 			return null;
@@ -292,14 +293,14 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try {
 			HibernateCallback hcb = new HibernateCallback() {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException {
+                public Object doInHibernate(Session session) throws HibernateException, SQLException {
                     Query q = session.getNamedQuery(QUERY_GET_ALL_ATTENDANCE_STATUSES_FOR_SITE);
                     q.setParameter(ATTENDANCE_SITE, attendanceSite, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
                     return q.list();
                 }
             };
 
-			return (List<AttendanceStatus>) getHibernateTemplate().execute(hcb);
+			return (List<AttendanceStatus>) getHibernateTemplate().executeFind(hcb);
 		} catch (DataAccessException e) {
 			log.error("getAllStatusesForSite failed", e);
 			return null;
@@ -339,7 +340,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try{
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_GRADE);
 					q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
 					q.setParameter(USER_ID, userID, new StringType());
@@ -366,14 +367,14 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try{
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_GRADES_FOR_SITE);
 					q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
 					return q.list();
 				}
 			};
 
-			return (List<AttendanceGrade>) getHibernateTemplate().execute(hcb);
+			return (List<AttendanceGrade>) getHibernateTemplate().executeFind(hcb);
 		} catch (DataAccessException e) {
 			log.error("DataAccessException getting AttendanceGrades for " + aS.getSiteID() + ". E:", e);
 			return null;
@@ -423,7 +424,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try{
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_USER_STATS);
 					q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
 					q.setParameter(USER_ID, userId);
@@ -448,14 +449,14 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try{
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_USER_STATS_FOR_SITE);
 					q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
 					return q.list();
 				}
 			};
 
-			return (List<AttendanceUserStats>) getHibernateTemplate().execute(hcb);
+			return (List<AttendanceUserStats>) getHibernateTemplate().executeFind(hcb);
 		} catch (DataAccessException e) {
 			log.error("DataAccessException getting AttendanceUserStats for Site: " + aS.getSiteID() + ".", e);
 			return null;
@@ -521,7 +522,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try{
 			HibernateCallback hcb = new HibernateCallback() {
 				@Override
-				public Object doInHibernate(Session session) throws HibernateException {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_ITEM_STATS);
 					q.setParameter(ATTENDANCE_EVENT, aE, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceEvent"));
 					return q.uniqueResult();
@@ -566,7 +567,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
                 return q.list();
             };
 
-			return (List<GradingRule>) getHibernateTemplate().execute(hcb);
+			return (List<GradingRule>) getHibernateTemplate().executeFind(hcb);
 
 		} catch (DataAccessException e) {
 			log.error("getGradingRulesForSite failed", e);
@@ -643,14 +644,14 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try {
 			HibernateCallback hcb = new HibernateCallback() {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException {
+                public Object doInHibernate(Session session) throws HibernateException, SQLException {
                     Query q = session.getNamedQuery(QUERY_GET_ATTENDANCE_EVENTS_FOR_SITE);
                     q.setParameter(ATTENDANCE_SITE, aS, new ManyToOneType(null, "org.sakaiproject.attendance.model.AttendanceSite"));
                     return q.list();
                 }
             };
 
-			return (List<AttendanceEvent>) getHibernateTemplate().execute(hcb);
+			return (List<AttendanceEvent>) getHibernateTemplate().executeFind(hcb);
 		} catch (DataAccessException e) {
 			log.error("getEventsForAttendanceSiteHelper failed", e);
 			return null;
@@ -666,7 +667,7 @@ public class AttendanceDaoImpl extends HibernateDaoSupport implements Attendance
 		try {
 			HibernateCallback hcb = new HibernateCallback() {
                 @Override
-                public Object doInHibernate(Session session) throws HibernateException {
+                public Object doInHibernate(Session session) throws HibernateException, SQLException {
                     Query q = session.getNamedQuery(queryString);
                     q.setParameter(ID, id, new LongType());
                     q.setMaxResults(1);
