@@ -41,14 +41,16 @@ import java.util.List;
 public class PrintPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
     //TODO: Internationalize
-    private static final List<String> PRINT_OPTIONS = Arrays.asList("Sign-In Sheet", "Attendance Sheet");
+    private static final List<String> PRINT_TYPE_OPTIONS = Arrays.asList("Sign-In Sheet", "Attendance Sheet");
+    private static final List<String> PRINT_FORMAT_OPTIONS = Arrays.asList("PDF", "XLS");
 
     private IModel<AttendanceEvent> eventModel;
     private DropDownChoice<String> groupChoice;
     private transient List<User> userList;
     private String groupOrSiteTitle;
 
-    private String selected = "Sign-In Sheet";
+    private String typeSelected = "Sign-In Sheet";
+    private String formatSelected = "PDF";
 
     public PrintPanel(String id, IModel<AttendanceEvent> event) {
         super(id, event);
@@ -72,16 +74,25 @@ public class PrintPanel extends BasePanel {
                     groupOrSiteTitle = sakaiProxy.getGroupTitleForCurrentSite(groupChoice.getModelObject());
                 }
 
-                final boolean isSignIn = selected.equals("Sign-In Sheet");
-                String filename = eventModel.getObject().getName().trim().replaceAll("\\s+", "") + (isSignIn?"-signin.pdf":"-attendance.pdf");
+                final boolean isSignIn = typeSelected.equals("Sign-In Sheet");
+                final boolean isPDF = formatSelected.equals("PDF");
+                String filename = eventModel.getObject().getName().trim().replaceAll("\\s+", "") + (isSignIn?"-signin":"-attendance") + (isPDF?".pdf":".xls");
 
                 AbstractResourceStreamWriter rstream = new AbstractResourceStreamWriter() {
                     @Override
                     public void write(OutputStream outputStream) throws IOException {
                         if(isSignIn){
-                            pdfExporter.createSignInPdf(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            if(isPDF){
+                                pdfExporter.createSignInPdf(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            }else{
+                                csvExporter.createSignInCsv(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            }
                         } else {
-                            pdfExporter.createAttendanceSheetPdf(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            if(isPDF){
+                                pdfExporter.createAttendanceSheetPdf(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            }else{
+                                csvExporter.createSignInCsv(eventModel.getObject(), outputStream, userList, groupOrSiteTitle);
+                            }
                         }
                     }
                 };
@@ -120,8 +131,10 @@ public class PrintPanel extends BasePanel {
         groupChoice.setNullValid(true);
         printForm.add(groupChoice);
 
-        RadioChoice<String> printFormat = new RadioChoice<String>("print-format", new PropertyModel<String>(this, "selected"), PRINT_OPTIONS);
+        RadioChoice<String> printType = new RadioChoice<String>("print-type", new PropertyModel<String>(this, "typeSelected"), PRINT_TYPE_OPTIONS);
+        RadioChoice<String> printFormat = new RadioChoice<String>("print-format", new PropertyModel<String>(this, "formatSelected"), PRINT_FORMAT_OPTIONS);
 
+        printForm.add(printType);
         printForm.add(printFormat);
 
         SubmitLink print = new SubmitLink("print");

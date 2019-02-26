@@ -75,6 +75,16 @@
 
 	</bean>
 
+	<!-- CSVEventExporter -->
+	<bean id="org.sakaiproject.attendance.export.CSVEventExporter"
+		  class="org.sakaiproject.attendance.export.CSVEventExporterImpl"
+		  init-method="init">
+
+		<property name="attendanceLogic" ref="org.sakaiproject.attendance.logic.AttendanceLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.attendance.logic.SakaiProxy" />
+
+	</bean>
+
 	<!-- AttendanceGradebookProvider -->
 	<bean id="org.sakaiproject.attendance.api.AttendanceGradebookProvider"
 		  class="org.sakaiproject.attendance.impl.AttendanceGradebookProviderImpl"

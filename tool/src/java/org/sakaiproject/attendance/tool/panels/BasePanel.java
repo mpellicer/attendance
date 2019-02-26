@@ -23,6 +23,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.attendance.api.AttendanceGradebookProvider;
+import org.sakaiproject.attendance.export.CSVEventExporter;
 import org.sakaiproject.attendance.export.PDFEventExporter;
 import org.sakaiproject.attendance.logic.AttendanceLogic;
 import org.sakaiproject.attendance.logic.SakaiProxy;
@@ -43,6 +44,9 @@ public class BasePanel extends Panel {
 
     @SpringBean(name="org.sakaiproject.attendance.export.PDFEventExporter")
     protected PDFEventExporter pdfExporter;
+
+    @SpringBean(name="org.sakaiproject.attendance.export.CSVEventExporter")
+    protected CSVEventExporter csvExporter;
 
     @SpringBean(name="org.sakaiproject.attendance.api.AttendanceGradebookProvider")
     protected AttendanceGradebookProvider attendanceGradebookProvider;
