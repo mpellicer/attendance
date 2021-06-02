@@ -207,6 +207,8 @@ public class ExportPage extends BasePage{
                         currentCell = studentRow.createCell(columnCounter, CellType.STRING);
                         if(blankSheet){ //when the user wants a blank sheet exported
                             currentCell.setCellValue("");
+                        } else if(currentRecord.getStatus() == null) {
+                            currentCell.setCellValue("");
                         } else if(currentRecord.getStatus().toString().equals("PRESENT")) {    //convert the Status to a one-letter abbreviation
                             currentCell.setCellValue("P");
                         } else if (currentRecord.getStatus().toString().equals("UNEXCUSED_ABSENCE")){
@@ -237,7 +239,7 @@ public class ExportPage extends BasePage{
         }
         try {
             return writeFile(wb, tempFile);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Error when closing workbook: ", e);
             return null;
         }
